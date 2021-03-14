@@ -39,8 +39,7 @@ public class ClientHandler implements Runnable {
         try {
             while (true) {
                 // The server sends a message
-                server.sendMessageToAllClients("A new member has entered the chat!");
-                server.sendMessageToAllClients("Clients in chat = " + clients_count);
+                server.sendMessageToAllClients("I have entered the chat!");
                 break;
             }
 
