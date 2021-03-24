@@ -37,11 +37,6 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
-                // The server sends a message
-                server.sendMessageToAllClients("I have entered the chat!");
-                break;
-            }
 
             while (true) {
                 // If a message came from a client
