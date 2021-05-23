@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 // Implement the Runnable interface that allows you to work with threads
-public class ClientHandler implements Runnable {
+public class ClientHandler extends Thread {
     // Our server instance
     private Server server;
     // Incoming message
@@ -38,7 +38,7 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
 
-            while (true) {
+            while (!clientSocket.isClosed()) {
                 // If a message came from a client
                 if (inMessage.hasNext()) {
                     String clientMessage = inMessage.nextLine();
@@ -47,8 +47,6 @@ public class ClientHandler implements Runnable {
                     if (clientMessage.equalsIgnoreCase("exit")) {
                         break;
                     }
-                    // Print a message to the console (for test)
-                    System.out.println(clientMessage);
                     // Sending this message to all clients
                     server.sendMessageToAllClients(clientMessage);
                 }
@@ -60,6 +58,7 @@ public class ClientHandler implements Runnable {
             ex.printStackTrace();
         }
         finally {
+            System.out.println("Client disconnected");
             this.close();
         }
     }
@@ -80,5 +79,6 @@ public class ClientHandler implements Runnable {
         server.removeClient(this);
         clients_count--;
         server.sendMessageToAllClients("Clients in chat = " + clients_count);
+        this.interrupt();
     }
 }

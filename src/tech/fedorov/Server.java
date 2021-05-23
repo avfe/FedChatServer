@@ -1,11 +1,9 @@
 package tech.fedorov;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Scanner;
 
 public class Server {
@@ -27,19 +25,34 @@ public class Server {
             serverSocket = new ServerSocket(PORT, 0);
             System.out.println("Server is running!");
             // Getting IP of our machine
-            InetAddress addr = null;
+            System.out.println("Your adapters and IPs:");
+            System.out.println("---------------");
+            String ip;
             try {
-                addr = InetAddress.getLocalHost();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
+                Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+                while (interfaces.hasMoreElements()) {
+                    NetworkInterface iface = interfaces.nextElement();
+                    // filters out 127.0.0.1 and inactive interfaces
+                    if (iface.isLoopback() || !iface.isUp())
+                        continue;
+
+                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                    while(addresses.hasMoreElements()) {
+                        InetAddress addr = addresses.nextElement();
+                        ip = addr.getHostAddress();
+                        System.out.println(iface.getDisplayName() + " " + ip);
+                    }
+                }
+            } catch (SocketException e) {
+                throw new RuntimeException(e);
             }
-            String myLANIP = addr.getHostAddress();
-            // Displaying IP and PORT of the server
-            System.out.println("Server's IP - " + myLANIP + "\nPort - " + PORT);
+            System.out.println("---------------");
+            System.out.println("Waiting for connection...");
             // Start an endless loop
             while (true) {
                 // Thus we are waiting for connections
                 clientSocket = serverSocket.accept();
+                System.out.println("New client connected!");
                 // Create a client handler that connected to the server
                 ClientHandler client = new ClientHandler(clientSocket, this);
                 clients.add(client);
